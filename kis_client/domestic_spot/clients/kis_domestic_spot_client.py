@@ -58,10 +58,10 @@ class KoreaInvestmentSecuritiesSpotClient:
         }
 
         try:
-            data = await self._executor.execute_rest_api_call_async(http_method="post",
-                                                                    endpoint=OAUTH2_TOKEN_P,
-                                                                    headers=headers,
-                                                                    parameters=parameters)
+            data = await self._executor.execute_public_api_call_async(http_method="post",
+                                                                      endpoint=OAUTH2_TOKEN_P,
+                                                                      headers=headers,
+                                                                      parameters=parameters)
             return data
         except Exception:
             raise
