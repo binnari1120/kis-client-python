@@ -118,6 +118,71 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         except Exception:
             raise
 
+    async def post_trading_order_rvsecncl_v1_async(self,
+                                                   cano: str,
+                                                   acnt_prdt_cd: str,
+                                                   krx_fwdg_ord_ordno: str,
+                                                   orgn_odno: str,
+                                                   ord_dvsn: str,
+                                                   rvse_cncl_dvsn_cd: str,
+                                                   ord_qty: str,
+                                                   ord_unpr: str,
+                                                   qty_all_ord_yn: str,
+                                                   cndt_pric: Optional[str] = None,
+                                                   excg_id_dvsn_cd: Optional[
+                                                       KoreaInvestmentSecuritiesDomesticSpotExcgIdDvsnCd] = None):
+        self._ensure_credentials()
+        self._ensure_access_token()
+
+        parameters = dict({
+            "CANO": cano,
+            "ACNT_PRDT_CD": acnt_prdt_cd,
+            "krx_fwdg_ord_ordno": krx_fwdg_ord_ordno,
+            "ORD_QTY": ord_qty
+        })
+
+        if ord_unpr is not None:
+            parameters["ORD_UNPR"] = ord_unpr
+        if acnt_prdt_cd is not None:
+            parameters["ACNT_PRDT_CD"] = acnt_prdt_cd
+        if krx_fwdg_ord_ordno is not None:
+            parameters["KRX_FWDG_ORD_ORGNO"] = krx_fwdg_ord_ordno
+        if orgn_odno is not None:
+            parameters["ORGN_ODNO"] = orgn_odno
+        if ord_dvsn is not None:
+            parameters["ORD_DVSN"] = ord_dvsn
+        if rvse_cncl_dvsn_cd is not None:
+            parameters["RVSE_CNCL_DVSN_CD"] = rvse_cncl_dvsn_cd
+        if ord_qty is not None:
+            parameters["ORD_QTY"] = ord_qty
+        if ord_unpr is not None:
+            parameters["ORD_UNPR"] = ord_unpr
+        if qty_all_ord_yn is not None:
+            parameters["QTY_ALL_ORD_YN"] = qty_all_ord_yn
+        if cndt_pric is not None:
+            parameters["CNDT_PRIC"] = cndt_pric
+        if excg_id_dvsn_cd is not None:
+            parameters["EXCG_ID_DVSN_CD"] = excg_id_dvsn_cd.value
+
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self._access_token}",
+            "appkey": self._credential.public_key,
+            "appsecret": self._credential.private_key,
+            "tr_id": "VTTC0013U" if self._credential.is_demo_account else "TTTC0013U",
+            # "seq_no": "001" if self._credential.is_corporate_account else None,
+            "custtype": "B" if self._credential.is_corporate_account else "P",
+        }
+
+        try:
+            data = await self._executor.execute_private_api_call_async(http_method="post",
+                                                                       endpoint=TRADING_ORDER_RVSECNCL_V1,
+                                                                       headers=headers,
+                                                                       parameters=parameters)
+            return data
+        except Exception:
+            raise
+
     async def get_trading_inquire_balance_v1_async(
             self,
             cano: str,
@@ -179,7 +244,7 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
                                                           ord_dvsn_cd: str,
                                                           ord_objt_cblc_dvsn_cd: str,
                                                           rsvn_ord_seq: str,
-                                                          is_cancelling: bool = False,
+                                                          is_cancelling: bool = True,
                                                           ord_unpr: Optional[str] = "0",
                                                           load_dt: Optional[str] = None,
                                                           rsvn_ord_end_dt: Optional[str] = None,

@@ -113,7 +113,7 @@ async def test_post_cash_v1_async():
     # # 지정가 매수
     is_closing = False
     sll_type = None
-    ord_dvsn = "00" # 지정가
+    ord_dvsn = "00"  # 지정가
     ord_unpr = "2900"
 
     # # 지정가 매도
@@ -158,6 +158,69 @@ async def test_post_cash_v1_async():
             assert result["msg1"] == "장운영일자가 주문일과 상이합니다"
         case "APBK0013":
             assert result["msg1"] == "주문 전송 완료 되었습니다."
+
+
+@pytest.mark.asyncio
+async def test_post_trading_order_rvsecncl_v1_async():
+    return
+    _set_access_token()
+
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
+        accounts = yaml.safe_load(file)
+    credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                   private_key=accounts["Spot"]["private_key"],
+                                                                   is_corporate_account=False)
+    client.set_credentials(credentials=credentials)
+
+    cano = "81382087"
+    acnt_prdt_cd = "01"
+    krx_fwdg_ord_ordno = ""
+    orgn_odno = "0000457500"
+    ord_dvsn = ""
+    rvse_cncl_dvsn_cd = "02"
+    ord_qty = "1"
+    ord_unpr = "0"
+    qty_all_ord_yn = "Y"
+    excg_id_dvsn_cd = KoreaInvestmentSecuritiesDomesticSpotExcgIdDvsnCd.SOR
+
+    result = await client.private_rest_client.post_trading_order_rvsecncl_v1_async(cano=cano,
+                                                                                   acnt_prdt_cd=acnt_prdt_cd,
+                                                                                   krx_fwdg_ord_ordno=krx_fwdg_ord_ordno,
+                                                                                   orgn_odno=orgn_odno,
+                                                                                   ord_dvsn=ord_dvsn,
+                                                                                   rvse_cncl_dvsn_cd=rvse_cncl_dvsn_cd,
+                                                                                   ord_qty=ord_qty,
+                                                                                   ord_unpr=ord_unpr,
+                                                                                   qty_all_ord_yn=qty_all_ord_yn,
+                                                                                   excg_id_dvsn_cd=excg_id_dvsn_cd)
+
+    print(result)
+    match result["msg_cd"]:
+        case "APBK0918":
+            assert result["msg1"] == "장운영시간이 아닙니다.(주문불가)"
+        case "APBK0919":
+            assert result["msg1"] == "장운영일자가 주문일과 상이합니다"
+        case "APBK0013":
+            assert result["msg1"] == "주문 전송 완료 되었습니다."
+
+
+@pytest.mark.asyncio
+async def test_post_trading_inquire_psbl_rvsecncl_v1_async():
+    _set_access_token()
+
+    cano = "81382087"
+    acnt_prdt_cd = "01"
+    pdno = "088350"  # 한화생명
+    ord_qty = "1"
+
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
+        accounts = yaml.safe_load(file)
+    credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                   private_key=accounts["Spot"]["private_key"],
+                                                                   is_corporate_account=False)
+    client.set_credentials(credentials=credentials)
+    result = await client.private_rest_client.post_trading_inquire_psbl_rvsecncl_v1_async()
+
 
 @pytest.mark.asyncio
 async def test_get_psbl_rvsecncl_v1_async():
@@ -261,11 +324,12 @@ async def test_get_psbl_rvsecncl_v1_async():
     #     "msg_cd": "KIOK0510",
     #     "msg1": "조회가 완료되었습니다                                                           "
     # }
-    
+
     print(order_details)
     print(order_details["output"])
     print(order_details["ctx_area_fk100"])
     print("==========")
+
 
 @pytest.mark.asyncio
 async def test_get_balance_v1_async():

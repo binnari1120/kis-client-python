@@ -3,6 +3,7 @@ OAUTH2_TOKEN_P = "/oauth2/tokenP"
 
 # Order / Account
 TRADING_ORDER_CASH_V1 = "/uapi/domestic-stock/v1/trading/order-cash"
+TRADING_ORDER_RVSECNCL_V1 = "/uapi/domestic-stock/v1/trading/order-rvsecncl"
 TRADING_INQUIRE_PSBL_RVSECNCL_V1 = "/uapi/domestic-stock/v1/trading/inquire-psbl-rvsecncl"
 TRADING_INQUIRE_BALANCE_V1 = "/uapi/domestic-stock/v1/trading/inquire-balance"
 TRADING_INQUIRE_BALANCE_RLZ_PL_V1 = "/uapi/domestic-stock/v1/trading/inquire-balance-rlz-pl"
