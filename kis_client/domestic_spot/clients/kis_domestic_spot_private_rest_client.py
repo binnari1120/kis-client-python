@@ -170,6 +170,75 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         except Exception:
             raise
 
+    async def post_trading_inquire_psbl_rvsecncl_v1_async(self,
+                                                          cano: str,
+                                                          acnt_prdt_cd: str,
+                                                          pdno: str,
+                                                          ord_qty: str,
+                                                          sll_buy_dnsn_cd: str,
+                                                          ord_dvsn_cd: str,
+                                                          ord_objt_cblc_dvsn_cd: str,
+                                                          rsvn_ord_seq: str,
+                                                          is_cancelling: bool = False,
+                                                          ord_unpr: Optional[str] = "0",
+                                                          load_dt: Optional[str] = None,
+                                                          rsvn_ord_end_dt: Optional[str] = None,
+                                                          ctal_tlno: Optional[str] = None,
+                                                          rsvn_ord_orgno: Optional[str] = None,
+                                                          rsvn_ord_ord_dt: Optional[str] = None):
+        self._ensure_credentials()
+        if self._credential.is_demo_account:
+            raise ValueError("Unsupported for demo account!")
+
+        self._ensure_access_token()
+
+        parameters = dict({
+            "CANO": cano,
+            "ACNT_PRDT_CD": acnt_prdt_cd,
+            "PDNO": pdno,
+            "ORD_QTY": ord_qty
+        })
+
+        if ord_unpr is not None:
+            parameters["ORD_UNPR"] = ord_unpr
+        if sll_buy_dnsn_cd is not None:
+            parameters["SLL_BUY_DVSN_CD"] = sll_buy_dnsn_cd
+        if ord_dvsn_cd is not None:
+            parameters["ORD_DVSN_CD"] = ord_dvsn_cd
+        if ord_objt_cblc_dvsn_cd is not None:
+            parameters["ORD_OBJT_CBLC_DVSN_CD"] = ord_objt_cblc_dvsn_cd
+        if load_dt is not None:
+            parameters["LOAN_DT"] = load_dt
+        if rsvn_ord_end_dt is not None:
+            parameters["RSVN_ORD_END_DT"] = rsvn_ord_end_dt
+        if ctal_tlno is not None:
+            parameters["CTAL_TLNO"] = ctal_tlno
+        if rsvn_ord_seq is not None:
+            parameters["RSVN_ORD_SEQ"] = rsvn_ord_seq
+        if rsvn_ord_orgno is not None:
+            parameters["RSVN_ORD_ORGNO"] = rsvn_ord_orgno
+        if rsvn_ord_ord_dt is not None:
+            parameters["RSVN_ORD_ORD_DT"] = rsvn_ord_ord_dt
+
+        headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self._access_token}",
+            "appkey": self._credential.public_key,
+            "appsecret": self._credential.private_key,
+            "tr_id": "CTSC0009U" if is_cancelling else "CTSC0013U",
+            # "seq_no": "001" if self._credential.is_corporate_account else None,
+            "custtype": "B" if self._credential.is_corporate_account else "P",
+        }
+
+        try:
+            data = await self._executor.execute_private_api_call_async(http_method="post",
+                                                                       endpoint=TRADING_ORDER_CASH_V1,
+                                                                       headers=headers,
+                                                                       parameters=parameters)
+            return data
+        except Exception:
+            raise
+
     async def get_trading_inquire_psbl_rvsecncl_v1_async(
             self,
             cano: str,

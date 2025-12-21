@@ -88,7 +88,7 @@ async def test_set_credentials():
 
 @pytest.mark.asyncio
 async def test_post_cash_v1_async():
-    # return
+    return
     _set_access_token()
 
     with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
@@ -180,39 +180,88 @@ async def test_get_psbl_rvsecncl_v1_async():
     order_details = await client.private_rest_client.get_trading_inquire_psbl_rvsecncl_v1_async(cano=cano,
                                                                                                 acnt_prdt_cd=acnt_prdt_cd,
                                                                                                 inqr_dvsn_1="0",
-                                                                                                inqr_dvsn_2="1")
+                                                                                                inqr_dvsn_2="0")
     print(order_details)
+    assert "output" in order_details
+    for order_detail in order_details["output"]:
+        assert "ord_gno_brno" in order_detail
+        assert "odno" in order_detail
+        assert "orgn_odno" in order_detail
+        assert "ord_dvsn_name" in order_detail
+        assert "pdno" in order_detail
+        assert "prdt_name" in order_detail
+        assert "rvse_cncl_dvsn_name" in order_detail
+        assert "ord_qty" in order_detail
+        assert "ord_unpr" in order_detail
+        assert "ord_tmd" in order_detail
+        assert "tot_ccld_qty" in order_detail
+        assert "tot_ccld_amt" in order_detail
+        assert "psbl_qty" in order_detail
+        assert "sll_buy_dvsn_cd" in order_detail
+        assert "ord_dvsn_cd" in order_detail
+        assert "mgco_aptm_odno" in order_detail
+        assert "excg_dvsn_cd" in order_detail
+        assert "excg_id_dvsn_cd" in order_detail
+        assert "excg_id_dvsn_name" in order_detail
+        assert "stpm_cndt_pric" in order_detail
+        assert "stpm_efct_occr_yn" in order_detail
 
-    # [
-    #     {
-    #         "pdno": "088350",
-    #         "prdt_name": "한화생명",
-    #         "trad_dvsn_name": "현금",
-    #         "bfdy_buy_qty": "0",
-    #         "bfdy_sll_qty": "0",
-    #         "thdt_buyqty": "1",
-    #         "thdt_sll_qty": "0",
-    #         "hldg_qty": "1",
-    #         "ord_psbl_qty": "1",
-    #         "pchs_avg_pric": "3145.0000",
-    #         "pchs_amt": "3145",
-    #         "prpr": "3145",
-    #         "evlu_amt": "3145",
-    #         "evlu_pfls_amt": "0",
-    #         "evlu_pfls_rt": "0.00",
-    #         "evlu_erng_rt": "0.00000000",
-    #         "loan_dt": "",
-    #         "loan_amt": "0",
-    #         "stln_slng_chgs": "0",
-    #         "expd_dt": "",
-    #         "fltt_rt": "1.94489465",
-    #         "bfdy_cprs_icdc": "60",
-    #         "item_mgna_rt_name": "30%",
-    #         "grta_rt_name": "45%",
-    #         "sbst_pric": "2340",
-    #         "stck_loan_unpr": "0.0000"
-    #     }
-    # ]
+    # {
+    #     "ctx_area_fk100": "81382087^01^                                                                                        ",
+    #     "ctx_area_nk100": "                                                                                                    ",
+    #     "output": [
+    #         {
+    #             "ord_gno_brno": "03930",
+    #             "odno": "0000457500",
+    #             "orgn_odno": "",
+    #             "ord_dvsn_name": "지정가",
+    #             "pdno": "088350",
+    #             "prdt_name": "한화생명",
+    #             "rvse_cncl_dvsn_name": "현금매수",
+    #             "ord_qty": "1",
+    #             "ord_unpr": "2900",
+    #             "ord_tmd": "152229",
+    #             "tot_ccld_qty": "0",
+    #             "tot_ccld_amt": "0",
+    #             "psbl_qty": "1",
+    #             "sll_buy_dvsn_cd": "02",
+    #             "ord_dvsn_cd": "00",
+    #             "mgco_aptm_odno": "",
+    #             "excg_dvsn_cd": "12",
+    #             "excg_id_dvsn_cd": "SOR",
+    #             "excg_id_dvsn_name": "SOR",
+    #             "stpm_cndt_pric": "0",
+    #             "stpm_efct_occr_yn": ""
+    #         },
+    #         {
+    #             "ord_gno_brno": "03930",
+    #             "odno": "0000456600",
+    #             "orgn_odno": "",
+    #             "ord_dvsn_name": "지정가",
+    #             "pdno": "088350",
+    #             "prdt_name": "한화생명",
+    #             "rvse_cncl_dvsn_name": "현금매수",
+    #             "ord_qty": "1",
+    #             "ord_unpr": "2900",
+    #             "ord_tmd": "151849",
+    #             "tot_ccld_qty": "0",
+    #             "tot_ccld_amt": "0",
+    #             "psbl_qty": "1",
+    #             "sll_buy_dvsn_cd": "02",
+    #             "ord_dvsn_cd": "00",
+    #             "mgco_aptm_odno": "",
+    #             "excg_dvsn_cd": "12",
+    #             "excg_id_dvsn_cd": "SOR",
+    #             "excg_id_dvsn_name": "SOR",
+    #             "stpm_cndt_pric": "0",
+    #             "stpm_efct_occr_yn": ""
+    #         }
+    #     ],
+    #     "rt_cd": "0",
+    #     "msg_cd": "KIOK0510",
+    #     "msg1": "조회가 완료되었습니다                                                           "
+    # }
+    
     print(order_details)
     print(order_details["output"])
     print(order_details["ctx_area_fk100"])
