@@ -100,6 +100,9 @@ class KoreaInvestmentSecuritiesDomesticStockMasterFileManager:
         os.remove(tmp_fil1)
         os.remove(tmp_fil2)
 
+        if os.path.exists("kospi_code.mst"):
+            os.remove("kospi_code.mst")
+
         return df
 
     def _download_kosdaq_master_file(self):
@@ -183,5 +186,8 @@ class KoreaInvestmentSecuritiesDomesticStockMasterFileManager:
         del df2
         os.remove(tmp_fil1)
         os.remove(tmp_fil2)
+
+        if os.path.exists("kosdaq_code.mst"):
+            os.remove("kosdaq_code.mst")
 
         return df

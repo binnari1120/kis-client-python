@@ -6,7 +6,7 @@ from filelock import FileLock
 
 
 class KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter:
-    MINIMUM_INTERVAL: float = 1
+    MINIMUM_INTERVAL: float = 0.1
 
     def __init__(self,
                  lock_name: str = "binance_spot.lock"):

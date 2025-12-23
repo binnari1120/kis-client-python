@@ -50,7 +50,7 @@ async def test_single_process_rate_limiter_2():
     timestamp_queue = asyncio.Queue()
 
     async def worker():
-        await client.public_rest_client.get_ticker_price_v3_async()
+        await client.rest_client.get_ticker_price_v3_async()
         KoreaInvestmentSecuritiesDomesticStockSingleProcessRateLimiter.set_minimum_interval(seconds=2)
 
         timestamp = time.time()
