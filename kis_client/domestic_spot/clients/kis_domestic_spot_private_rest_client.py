@@ -7,6 +7,8 @@ from kis_client.domestic_spot.enums.kis_domestic_spot_afhr_flpr_yn import \
     KoreaInvestmentSecuritiesDomesticSpotAfhrFlprYn
 from kis_client.domestic_spot.enums.kis_domestic_spot_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticSpotExcgIdDvsnCd
+from kis_client.domestic_spot.enums.kis_domestic_spot_sll_buy_dvsn_cd import \
+    KoreaInvestmentSecuritiesDomesticSpotSllBuyDvsnCd
 from kis_client.domestic_spot.models.kis_domestic_spot_credentials import \
     KoreaInvestmentSecuritiesDomesticSpotCredentials
 
@@ -17,11 +19,20 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
     def __init__(self, executor: KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor):
         self._credential: Optional[KoreaInvestmentSecuritiesDomesticSpotCredentials] = None
         self._executor = executor
+        self._access_token = None
+        self._headers = None
 
     def set_credentials(self,
                         credentials: KoreaInvestmentSecuritiesDomesticSpotCredentials):
         self._credential = credentials
-
+        self._headers = {
+            "content-type": "application/json; charset=utf-8",
+            "authorization": f"Bearer {self._access_token}",
+            "appkey": self._credential.public_key,
+            "appsecret": self._credential.private_key,
+            "tr_id": "CTSC0004R",
+            "custtype": "B" if self._credential.is_corporate_account else "P",
+        }
     def set_access_token(self,
                          access_token: str):
         self._access_token = access_token
@@ -99,20 +110,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
             else:
                 tr_id = "TTTC0012U"
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": tr_id,
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = tr_id
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="post",
                                                                        endpoint=TRADING_ORDER_CASH_V1,
-                                                                       headers=headers,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
             return data
         except Exception:
@@ -137,7 +140,7 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         parameters = dict({
             "CANO": cano,
             "ACNT_PRDT_CD": acnt_prdt_cd,
-            "krx_fwdg_ord_ordno": krx_fwdg_ord_ordno,
+            "KRX_FWDG_ORD_ORGNO": krx_fwdg_ord_ordno,
             "ORD_QTY": ord_qty
         })
 
@@ -164,20 +167,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if excg_id_dvsn_cd is not None:
             parameters["EXCG_ID_DVSN_CD"] = excg_id_dvsn_cd.value
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "VTTC0013U" if self._credential.is_demo_account else "TTTC0013U",
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "VTTC0013U" if self._credential.is_demo_account else "TTTC0013U"
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="post",
                                                                        endpoint=TRADING_ORDER_RVSECNCL_V1,
-                                                                       headers=headers,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
             return data
         except Exception:
@@ -216,20 +211,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if ctx_area_nk100 is not None:
             parameters["CTX_AREA_NK100"] = ctx_area_nk100
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "VTTC8434R" if self._credential.is_demo_account else "TTTC8434R",
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "VTTC8434R" if self._credential.is_demo_account else "TTTC8434R"
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="get",
                                                                        endpoint=TRADING_INQUIRE_BALANCE_V1,
-                                                                       headers=headers,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
             return data
         except Exception:
@@ -240,7 +227,7 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
                                                           acnt_prdt_cd: str,
                                                           pdno: str,
                                                           ord_qty: str,
-                                                          sll_buy_dnsn_cd: str,
+                                                          sll_buy_dnsn_cd: KoreaInvestmentSecuritiesDomesticSpotSllBuyDvsnCd,
                                                           ord_dvsn_cd: str,
                                                           ord_objt_cblc_dvsn_cd: str,
                                                           rsvn_ord_seq: str,
@@ -267,7 +254,7 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if ord_unpr is not None:
             parameters["ORD_UNPR"] = ord_unpr
         if sll_buy_dnsn_cd is not None:
-            parameters["SLL_BUY_DVSN_CD"] = sll_buy_dnsn_cd
+            parameters["SLL_BUY_DVSN_CD"] = sll_buy_dnsn_cd.value
         if ord_dvsn_cd is not None:
             parameters["ORD_DVSN_CD"] = ord_dvsn_cd
         if ord_objt_cblc_dvsn_cd is not None:
@@ -285,20 +272,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if rsvn_ord_ord_dt is not None:
             parameters["RSVN_ORD_ORD_DT"] = rsvn_ord_ord_dt
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "CTSC0009U" if is_cancelling else "CTSC0013U",
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "CTSC0009U" if is_cancelling else "CTSC0013U"
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="post",
-                                                                       endpoint=TRADING_ORDER_CASH_V1,
-                                                                       headers=headers,
+                                                                       endpoint=TRADING_ORDER_RVSECNCL_V1,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
             return data
         except Exception:
@@ -333,20 +312,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if ctx_area_nk100 is not None:
             parameters["CTX_AREA_NK100"] = ctx_area_nk100
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "TTTC0084R",
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "TTTC0084R"
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="get",
                                                                        endpoint=TRADING_INQUIRE_PSBL_RVSECNCL_V1,
-                                                                       headers=headers,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
             return data
         except Exception:
@@ -389,57 +360,13 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
         if ctx_area_nk100 is not None:
             parameters["CTX_AREA_NK100"] = ctx_area_nk100
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "TTTC8494R",
-            # "seq_no": "001" if self._credential.is_corporate_account else None,
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "TTTC8494R"
 
         try:
             data = await self._executor.execute_private_api_call_async(http_method="get",
                                                                        endpoint=TRADING_INQUIRE_BALANCE_RLZ_PL_V1,
-                                                                       headers=headers,
+                                                                       headers=self._headers,
                                                                        parameters=parameters)
-            return data
-        except Exception:
-            raise
-
-    async def get_trading_inquire_psbl_sell_v1_async(
-            self,
-            cano: str,
-            acnt_prdt_cd: str,
-            pdno: str) -> Optional[Any]:
-
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
-
-        parameters = dict({
-            "CANO": cano,
-            "ACNT_PRDT_CD": acnt_prdt_cd,
-            "PDNO": pdno,
-        })
-
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "TTTC8408R",
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
-
-        try:
-            data = await self._executor.execute_public_api_call_async(http_method="get",
-                                                                      endpoint=TRADING_INQUIRE_PSBL_SELL_V1,
-                                                                      headers=headers,
-                                                                      parameters=parameters)
             return data
         except Exception:
             raise
@@ -474,19 +401,12 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
             "CTX_AREA_NK100": ctx_area_nk100,
         })
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "CTSC0004R",
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "CTSC0004R"
 
         try:
             data = await self._executor.execute_public_api_call_async(http_method="get",
                                                                       endpoint=TRADING_ORDER_RESV_CCNL_V1,
-                                                                      headers=headers,
+                                                                      headers=self._headers,
                                                                       parameters=parameters)
             return data
         except Exception:
@@ -510,19 +430,75 @@ class KoreaInvestmentSecuritiesSpotPrivateRestClient:
             "BSPR_BF_DT_APLY_YN": "",
         })
 
-        headers = {
-            "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
-            "appkey": self._credential.public_key,
-            "appsecret": self._credential.private_key,
-            "tr_id": "CTRP6548R",
-            "custtype": "B" if self._credential.is_corporate_account else "P",
-        }
+        self._headers["tr_id"] = "CTRP6548R"
 
         try:
             data = await self._executor.execute_public_api_call_async(http_method="get",
                                                                       endpoint=TRADING_INQUIRE_ACCOUNT_BALANCE_V1,
-                                                                      headers=headers,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise
+
+    async def get_trading_inquire_psbl_order_v1_async(
+            self,
+            cano: str,
+            acnt_prdt_cd: str,
+            pdno: str,
+            ord_unpr: str,
+            ord_dvsn: str = "01",
+            cma_evlu_amt_icld_yn: str = "Y",
+            ovrs_icld_yn: str = "Y") -> Optional[Any]:
+
+        self._ensure_credentials()
+        self._ensure_access_token()
+
+        parameters = dict({
+            "CANO": cano,
+            "ACNT_PRDT_CD": acnt_prdt_cd,
+            "PDNO": pdno,
+            "ORD_UNPR": ord_unpr,
+            "ORD_DVSN": ord_dvsn,
+            "CMA_EVLU_AMT_ICLD_YN": cma_evlu_amt_icld_yn,
+            "OVRS_ICLD_YN": ovrs_icld_yn
+        })
+
+        self._headers["tr_id"] = "VTTC8908R" if self._credential.is_demo_account else "TTTC8908R"
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="get",
+                                                                      endpoint=TRADING_INQUIRE_PSBL_ORDER_V1,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise
+
+    async def get_trading_inquire_psbl_sell_v1_async(
+            self,
+            cano: str,
+            acnt_prdt_cd: str,
+            pdno: str) -> Optional[Any]:
+
+        self._ensure_credentials()
+        if self._credential.is_demo_account:
+            raise ValueError("Unsupported for demo account!")
+
+        self._ensure_access_token()
+
+        parameters = dict({
+            "CANO": cano,
+            "ACNT_PRDT_CD": acnt_prdt_cd,
+            "PDNO": pdno,
+        })
+
+        self._headers["tr_id"] = "TTTC8408R"
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="get",
+                                                                      endpoint=TRADING_INQUIRE_PSBL_SELL_V1,
+                                                                      headers=self._headers,
                                                                       parameters=parameters)
             return data
         except Exception:

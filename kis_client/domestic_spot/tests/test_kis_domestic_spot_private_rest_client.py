@@ -51,7 +51,6 @@ def _set_access_token():
         raise Exception("")
     access_token = account.get("access_token", "")
     client.set_access_token(access_token=access_token)
-    client.set_access_token(access_token=access_token)
 
 
 @pytest.mark.asyncio
@@ -162,7 +161,6 @@ async def test_post_cash_v1_async():
 
 @pytest.mark.asyncio
 async def test_post_trading_order_rvsecncl_v1_async():
-    return
     _set_access_token()
 
     with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
@@ -175,8 +173,8 @@ async def test_post_trading_order_rvsecncl_v1_async():
     cano = "81382087"
     acnt_prdt_cd = "01"
     krx_fwdg_ord_ordno = ""
-    orgn_odno = "0000457500"
-    ord_dvsn = ""
+    orgn_odno = "0000574900"
+    ord_dvsn = "00"
     rvse_cncl_dvsn_cd = "02"
     ord_qty = "1"
     ord_unpr = "0"
@@ -202,28 +200,45 @@ async def test_post_trading_order_rvsecncl_v1_async():
             assert result["msg1"] == "장운영일자가 주문일과 상이합니다"
         case "APBK0013":
             assert result["msg1"] == "주문 전송 완료 되었습니다."
+        case "APBK0963":  # rt_cd: 7
+            assert result["msg1"] == "주문구분코드 오류 입니다."
+        case "APBK0927":  # rt_cd: 7
+            assert result["msg1"] == "정정취소 가능수량이 없습니다."
+
+
+# @pytest.mark.asyncio
+# async def test_post_trading_inquire_psbl_rvsecncl_v1_async():
+#     _set_access_token()
+#
+#     cano = "81382087"
+#     acnt_prdt_cd = "01"
+#     pdno = "088350"  # 한화생명
+#     ord_qty = "1"
+#     sll_buy_dnsn_cd = KoreaInvestmentSecuritiesDomesticSpotSllBuyDvsnCd.Buy
+#     ord_dvsn_cd = ""
+#     ord_objt_cblc_dvsn_cd = ""
+#     rsvn_ord_seq = "0000549400"
+#
+#     with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
+#         accounts = yaml.safe_load(file)
+#     credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+#                                                                    private_key=accounts["Spot"]["private_key"],
+#                                                                    is_corporate_account=False)
+#     client.set_credentials(credentials=credentials)
+#     result = await client.private_rest_client.post_trading_inquire_psbl_rvsecncl_v1_async(cano=cano,
+#                                                                                           acnt_prdt_cd=acnt_prdt_cd,
+#                                                                                           pdno=pdno,
+#                                                                                           ord_qty=ord_qty,
+#                                                                                           sll_buy_dnsn_cd=sll_buy_dnsn_cd,
+#                                                                                           ord_dvsn_cd=ord_dvsn_cd,
+#                                                                                           ord_objt_cblc_dvsn_cd=ord_objt_cblc_dvsn_cd,
+#                                                                                           rsvn_ord_seq=rsvn_ord_seq,
+#                                                                                           is_cancelling=True)
+#     print(result)
 
 
 @pytest.mark.asyncio
-async def test_post_trading_inquire_psbl_rvsecncl_v1_async():
-    _set_access_token()
-
-    cano = "81382087"
-    acnt_prdt_cd = "01"
-    pdno = "088350"  # 한화생명
-    ord_qty = "1"
-
-    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
-        accounts = yaml.safe_load(file)
-    credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
-                                                                   private_key=accounts["Spot"]["private_key"],
-                                                                   is_corporate_account=False)
-    client.set_credentials(credentials=credentials)
-    result = await client.private_rest_client.post_trading_inquire_psbl_rvsecncl_v1_async()
-
-
-@pytest.mark.asyncio
-async def test_get_psbl_rvsecncl_v1_async():
+async def test_get_trading_inquire_psbl_rvsecncl_v1_async():
     _set_access_token()
 
     cano = "81382087"
@@ -244,7 +259,6 @@ async def test_get_psbl_rvsecncl_v1_async():
                                                                                                 acnt_prdt_cd=acnt_prdt_cd,
                                                                                                 inqr_dvsn_1="0",
                                                                                                 inqr_dvsn_2="0")
-    print(order_details)
     assert "output" in order_details
     for order_detail in order_details["output"]:
         assert "ord_gno_brno" in order_detail
@@ -326,13 +340,13 @@ async def test_get_psbl_rvsecncl_v1_async():
     # }
 
     print(order_details)
-    print(order_details["output"])
-    print(order_details["ctx_area_fk100"])
+    # print(order_details["output"])
+    # print(order_details["ctx_area_fk100"])
     print("==========")
 
 
 @pytest.mark.asyncio
-async def test_get_balance_v1_async():
+async def test_get_trading_inquire_balance_v1_async():
     _set_access_token()
 
     cano = "81382087"
@@ -390,7 +404,7 @@ async def test_get_balance_v1_async():
 
 
 @pytest.mark.asyncio
-async def test_get_balance_v1_async():
+async def test_get_trading_inquire_balance_v1_async():
     _set_access_token()
 
     cano = "81382087"
@@ -414,14 +428,14 @@ async def test_get_balance_v1_async():
                                                                                             fund_sttl_icld_yn=fund_sttl_icld_yn,
                                                                                             prcs_dvsn=prcs_dvsn)
     print(balance_details)
-    print(balance_details["ctx_area_fk100"])
-    print(balance_details["output1"])
-    print(balance_details["output2"])
+    # print(balance_details["ctx_area_fk100"])
+    # print(balance_details["output1"])
+    # print(balance_details["output2"])
     print("==========")
 
 
 @pytest.mark.asyncio
-async def test_get_balance_rlz_pl_v1_async():
+async def test_get_trading_inquire_balance_rlz_pl_v1_async():
     _set_access_token()
 
     cano = "81382087"
@@ -446,41 +460,14 @@ async def test_get_balance_rlz_pl_v1_async():
                                                                                                    prcs_dvsn=prcs_dvsn,
                                                                                                    ctx_area_fk100="81382087^01^N^N^02^01^Y^")
     print(balance_details)
-    print(balance_details["ctx_area_fk100"])
-    print(balance_details["output1"])
-    print(balance_details["output2"])
+    # print(balance_details["ctx_area_fk100"])
+    # print(balance_details["output1"])
+    # print(balance_details["output2"])
     print("==========")
 
 
-# @pytest.mark.asyncio
-# async def test_get_psbl_sell_v1_async():
-#     _set_access_token()
-#
-#     cano = "81382087"
-#     acnt_prdt_cd = "01"
-#     afhr_flp_yn = KoreaInvestmentSecuritiesDomesticSpotAfhrFlprYn.N
-#     inqr_dvsn = "02"
-#     fund_sttl_icld_yn = "Y"
-#     prcs_dvsn = "01"
-#
-#     with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
-#         accounts = yaml.safe_load(file)
-#     credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
-#                                                                    private_key=accounts["Spot"]["private_key"],
-#                                                                    is_corporate_account=False)
-#     client.set_credentials(credentials=credentials)
-#
-#     balance_details = await client.private_rest_client.get_psbl_sell_v1_async(cano=cano,
-#                                                                               acnt_prdt_cd=acnt_prdt_cd,
-#                                                                               afhr_flp_yn=afhr_flp_yn,
-#                                                                               inqr_dvsn=inqr_dvsn,
-#                                                                               fund_sttl_icld_yn=fund_sttl_icld_yn,
-#                                                                               prcs_dvsn=prcs_dvsn)
-#     print(balance_details)
-
-
 @pytest.mark.asyncio
-async def test_get_account_balance_v1_async():
+async def test_get_trading_inquire_account_balance_v1_async():
     _set_access_token()
 
     cano = "81382087"
@@ -495,4 +482,54 @@ async def test_get_account_balance_v1_async():
 
     balance_details = await client.private_rest_client.get_trading_inquire_account_balance_v1_async(cano=cano,
                                                                                                     acnt_prdt_cd=acnt_prdt_cd)
+    print(balance_details)
+
+
+@pytest.mark.asyncio
+async def test_get_trading_inquire_psbl_order_v1_async():
+    _set_access_token()
+
+    cano = "81382087"
+    acnt_prdt_cd = "01"
+    pdno = "088350"  # 한화생명
+    ord_unpr = ""
+    ord_dvsn = "01"
+    cma_evlu_amt_icld_yn = "Y"
+    ovrs_icld_yn = "Y"
+
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
+        accounts = yaml.safe_load(file)
+    credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                   private_key=accounts["Spot"]["private_key"],
+                                                                   is_corporate_account=False)
+    client.set_credentials(credentials=credentials)
+
+    balance_details = await client.private_rest_client.get_trading_inquire_psbl_order_v1_async(cano=cano,
+                                                                                               acnt_prdt_cd=acnt_prdt_cd,
+                                                                                               pdno=pdno,
+                                                                                               ord_unpr=ord_unpr,
+                                                                                               ord_dvsn=ord_dvsn,
+                                                                                               cma_evlu_amt_icld_yn=cma_evlu_amt_icld_yn,
+                                                                                               ovrs_icld_yn=ovrs_icld_yn)
+    print(balance_details)
+
+
+@pytest.mark.asyncio
+async def test_get_psbl_sell_v1_async():
+    _set_access_token()
+
+    cano = "81382087"
+    acnt_prdt_cd = "01"
+    pdno = "088350"  # 한화생명
+
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
+        accounts = yaml.safe_load(file)
+    credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                   private_key=accounts["Spot"]["private_key"],
+                                                                   is_corporate_account=False)
+    client.set_credentials(credentials=credentials)
+
+    balance_details = await client.private_rest_client.get_trading_inquire_psbl_sell_v1_async(cano=cano,
+                                                                                              acnt_prdt_cd=acnt_prdt_cd,
+                                                                                              pdno=pdno)
     print(balance_details)

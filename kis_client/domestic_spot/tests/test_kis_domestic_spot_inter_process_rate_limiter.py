@@ -8,15 +8,16 @@ import pytest
 import yaml
 
 from kis_client.domestic_spot.core.kis_domestic_spot_inter_process_rate_limiter import \
-    KoreaInvestmentSecuritiesSpotInterProcessRateLimiter
+    KoreaInvestmentSecuritiesDomesticSpotInterProcessRateLimiter
 from kis_client.domestic_spot.kis_domestic_spot_client_factory import KoreaInvestmentSecuritiesSpotClientFactory
-from kis_client.domestic_spot.models.kis_domestic_spot_credentials import KoreaInvestmentSecuritiesSpotCredentials
+from kis_client.domestic_spot.models.kis_domestic_spot_credentials import \
+    KoreaInvestmentSecuritiesDomesticSpotCredentials
 
 
 def worker_process(use_queue: multiprocessing.Queue):
     async def _run():
-        limiter = KoreaInvestmentSecuritiesSpotInterProcessRateLimiter()
-        KoreaInvestmentSecuritiesSpotInterProcessRateLimiter.set_minimum_interval(seconds=2)
+        limiter = KoreaInvestmentSecuritiesDomesticSpotInterProcessRateLimiter()
+        KoreaInvestmentSecuritiesDomesticSpotInterProcessRateLimiter.set_minimum_interval(seconds=2)
 
         for _ in range(10):
             await limiter.acquire()
@@ -31,8 +32,8 @@ def worker_process(use_queue: multiprocessing.Queue):
 
 with open(f"{pathlib.Path(__file__).parent.parent.parent.parent}/configurations/accounts.yaml") as file:
     accounts = yaml.safe_load(file)
-credentials = KoreaInvestmentSecuritiesSpotCredentials(public_key=accounts["Spot"]["public_key"],
-                                                       private_key=accounts["Spot"]["private_key"])
+credentials = KoreaInvestmentSecuritiesDomesticSpotCredentials(public_key=accounts["Spot"]["public_key"],
+                                                               private_key=accounts["Spot"]["private_key"])
 
 
 def worker_process_2(use_queue: multiprocessing.Queue):
@@ -41,7 +42,7 @@ def worker_process_2(use_queue: multiprocessing.Queue):
         client = factory.create_client(use_single_process_rate_limiter=False,
                                        use_inter_process_rate_limiter=True)
         client.private_rest_client.set_credentials(credentials=credentials)
-        KoreaInvestmentSecuritiesSpotInterProcessRateLimiter.set_minimum_interval(seconds=2)
+        KoreaInvestmentSecuritiesDomesticSpotInterProcessRateLimiter.set_minimum_interval(seconds=2)
 
         for _ in range(10):
             result = await client.private_rest_client.get_account_v3_async()
