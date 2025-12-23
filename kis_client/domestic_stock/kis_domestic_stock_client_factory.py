@@ -21,7 +21,8 @@ class KoreaInvestmentSecuritiesDomesticStockClientFactory:
 
     def create_client(self,
                       use_single_process_rate_limiter: Optional[bool] = True,
-                      use_inter_process_rate_limiter: Optional[bool] = False) -> KoreaInvestmentSecuritiesDomesticStockClient:
+                      use_inter_process_rate_limiter: Optional[
+                          bool] = False) -> KoreaInvestmentSecuritiesDomesticStockClient:
         executor = KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor(
             use_single_process_rate_limiter=use_single_process_rate_limiter,
             use_inter_process_rate_limiter=use_inter_process_rate_limiter)

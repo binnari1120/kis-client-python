@@ -9,7 +9,8 @@ import yaml
 
 from kis_client.domestic_stock.core.kis_domestic_stock_inter_process_rate_limiter import \
     KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter
-from kis_client.domestic_stock.kis_domestic_stock_client_factory import KoreaInvestmentSecuritiesDomesticStockClientFactory
+from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
+    KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
     KoreaInvestmentSecuritiesDomesticStockCredentials
 

@@ -9,7 +9,8 @@ from kis_client.domestic_stock.enums.kis_domestic_stock_afhr_flpr_yn import \
     KoreaInvestmentSecuritiesDomesticStockAfhrFlprYn
 from kis_client.domestic_stock.enums.kis_domestic_stock_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd
-from kis_client.domestic_stock.kis_domestic_stock_client_factory import KoreaInvestmentSecuritiesDomesticStockClientFactory
+from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
+    KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
     KoreaInvestmentSecuritiesDomesticStockCredentials
 
@@ -21,6 +22,40 @@ client = factory.create_client()
 # async def test_ensure_credentials():
 #     with pytest.raises(ValueError):
 #         await client.private_rest_client.get_account_v3_async()
+
+
+@pytest.mark.asyncio
+async def test_set_credentials():
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml", "r",
+              encoding="utf-8") as file:
+        accounts = yaml.safe_load(file)
+
+    account = accounts["Spot"]
+    public_key = account.get("public_key", "")
+    private_key = account.get("private_key", "")
+    if not public_key:
+        raise Exception("Empty value: public_key")
+    elif not private_key:
+        raise Exception("Empty value: private_key")
+
+    access_token = account.get("access_token", "")
+    access_token_expiration = account.get("access_token_expiration", "")
+
+    if (not access_token) or _is_expired(expiration=access_token_expiration):
+        print("토큰 없음 → 신규 발급 중 ...")
+        credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                        private_key=accounts["Spot"]["private_key"],
+                                                                        is_corporate_account=True)
+        client.set_credentials(credentials=credentials)
+        token_details = await client.public_rest_client.get_token_async()
+        # print(token_details)
+        access_token = token_details["access_token"]
+        access_token_expiration = token_details["access_token_token_expired"]
+
+        account["access_token"] = access_token
+        account["access_token_expiration"] = access_token_expiration
+
+        _save(accounts)
 
 
 def _is_expired(expiration: str) -> bool:
@@ -51,38 +86,6 @@ def _set_access_token():
         raise Exception("")
     access_token = account.get("access_token", "")
     client.set_access_token(access_token=access_token)
-
-
-@pytest.mark.asyncio
-async def test_set_credentials():
-    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml", "r",
-              encoding="utf-8") as file:
-        accounts = yaml.safe_load(file)
-
-    account = accounts["Spot"]
-    public_key = account.get("public_key", "")
-    private_key = account.get("private_key", "")
-    if (not public_key) or (not private_key):
-        raise Exception("")
-
-    access_token = account.get("access_token", "")
-    access_token_expiration = account.get("access_token_expiration", "")
-
-    if (not access_token) or _is_expired(expiration=access_token_expiration):
-        print("토큰 없음 → 신규 발급 중 ...")
-        credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
-                                                                        private_key=accounts["Spot"]["private_key"],
-                                                                        is_corporate_account=True)
-        client.set_credentials(credentials=credentials)
-        token_details = await client.public_rest_client.get_token_async()
-        # print(token_details)
-        access_token = token_details["access_token"]
-        access_token_expiration = token_details["access_token_token_expired"]
-
-        account["access_token"] = access_token
-        account["access_token_expiration"] = access_token_expiration
-
-        _save(accounts)
 
 
 @pytest.mark.asyncio

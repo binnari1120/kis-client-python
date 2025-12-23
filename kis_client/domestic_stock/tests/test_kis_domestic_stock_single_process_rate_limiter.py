@@ -3,9 +3,10 @@ import time
 
 import pytest
 
-from kis_client.domestic_stock.kis_domestic_stock_client_factory import KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.core.kis_domestic_stock_single_process_rate_limiter import \
     KoreaInvestmentSecuritiesDomesticStockSingleProcessRateLimiter
+from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
+    KoreaInvestmentSecuritiesDomesticStockClientFactory
 
 
 @pytest.mark.asyncio

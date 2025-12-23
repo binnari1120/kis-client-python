@@ -7,7 +7,8 @@ import yaml
 
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
     KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
-from kis_client.domestic_stock.kis_domestic_stock_client_factory import KoreaInvestmentSecuritiesDomesticStockClientFactory
+from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
+    KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
     KoreaInvestmentSecuritiesDomesticStockCredentials
 
@@ -84,7 +85,7 @@ async def test_set_credentials():
 
 
 @pytest.mark.asyncio
-async def test_get_price_v1_async():
+async def test_get_quotations_price_v1_async():
     _set_access_token()
 
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
@@ -104,7 +105,7 @@ async def test_get_price_v1_async():
 
 
 @pytest.mark.asyncio
-async def test_get_price_2_v1_async():
+async def test_get_quotations_price_2_v1_async():
     _set_access_token()
 
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
@@ -124,7 +125,7 @@ async def test_get_price_2_v1_async():
 
 
 @pytest.mark.asyncio
-async def test_get_ccnl_v1_async():
+async def test_get_quotations_inquire_ccnl_v1_async():
     _set_access_token()
 
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
@@ -136,8 +137,8 @@ async def test_get_ccnl_v1_async():
                                                                     private_key=accounts["Spot"]["private_key"])
     client.set_credentials(credentials=credentials)
 
-    price_details = await client.public_rest_client.get_quotations_ccnl_v1_async(fid_cond_mrkt_div_code=code,
-                                                                                 fid_input_iscd=iscd)
+    price_details = await client.public_rest_client.get_quotations_inquire_ccnl_v1_async(fid_cond_mrkt_div_code=code,
+                                                                                         fid_input_iscd=iscd)
     print(price_details)
     assert "output" in price_details
     assert "msg1" in price_details and price_details["msg1"] == "정상처리 되었습니다."

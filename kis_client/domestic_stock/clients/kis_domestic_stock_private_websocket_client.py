@@ -1,4 +1,5 @@
-from kis_client.domestic_stock.core.kis_domestic_stock_websocket_connector import KoreaInvestmentSecuritiesDomesticStockWebsocketConnector
+from kis_client.domestic_stock.core.kis_domestic_stock_websocket_connector import \
+    KoreaInvestmentSecuritiesDomesticStockWebsocketConnector
 
 
 class KoreaInvestmentSecuritiesDomesticStockPrivateWebsocketClient:

@@ -119,7 +119,7 @@ class KoreaInvestmentSecuritiesDomesticStockPublicRestClient:
         except Exception:
             raise
 
-    async def get_quotations_ccnl_v1_async(
+    async def get_quotations_inquire_ccnl_v1_async(
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_input_iscd: str) -> Optional[Any]:

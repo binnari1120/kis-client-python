@@ -33,6 +33,7 @@ class KoreaInvestmentSecuritiesStockPrivateRestClient:
             "tr_id": "CTSC0004R",
             "custtype": "B" if self._credential.is_corporate_account else "P",
         }
+
     def set_access_token(self,
                          access_token: str):
         self._access_token = access_token
