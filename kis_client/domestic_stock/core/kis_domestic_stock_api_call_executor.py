@@ -18,10 +18,10 @@ class KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor:
     def __init__(self,
                  use_single_process_rate_limiter: bool = False,
                  use_inter_process_rate_limiter: bool = False):
-        self._spot_single_process_rate_limiter = KoreaInvestmentSecuritiesDomesticStockSingleProcessRateLimiter() if use_single_process_rate_limiter else None
-        self._spot_inter_process_rate_limiter = KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter() if use_inter_process_rate_limiter else None
-        if self._spot_inter_process_rate_limiter:
-            self._spot_single_process_rate_limiter = None
+        self._domestic_stock_single_process_rate_limiter = KoreaInvestmentSecuritiesDomesticStockSingleProcessRateLimiter() if use_single_process_rate_limiter else None
+        self._domestic_stock_inter_process_rate_limited = KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter() if use_inter_process_rate_limiter else None
+        if self._domestic_stock_inter_process_rate_limited:
+            self._domestic_stock_single_process_rate_limiter = None
 
     def __build_query_string(self, parameters):
         return "&".join([f"{key}={value}" for key, value in parameters.items()])
