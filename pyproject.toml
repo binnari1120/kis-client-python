@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kis-client-python"
+version = "0.1.0"
+description = "Korea Investment Securities client python library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp",
+    "filelock"
+]
+
+[tool.setuptools]
+packages = { find = { include = ["kis_client", "kis_client.*"] }}
