@@ -77,6 +77,7 @@ async def test_get_quotations_price_v1_async():
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
     iscd = "005930"
 
+    return
     price_details = await client.rest_client.get_quotations_price_v1_async(fid_cond_mrkt_div_code=code,
                                                                            fid_input_iscd=iscd)
     print(f"========== test_get_quotations_price_v1_async ==========")
@@ -93,6 +94,7 @@ async def test_get_quotations_price_2_v1_async():
 
     price_details = await client.rest_client.get_quotations_price_2_v1_async(fid_cond_mrkt_div_code=code,
                                                                              fid_input_iscd=iscd)
+    return
     print(f"========== test_get_quotations_price_2_v1_async ==========")
     print(price_details)
 
@@ -107,6 +109,7 @@ async def test_get_quotations_inquire_ccnl_v1_async():
 
     price_details = await client.rest_client.get_quotations_inquire_ccnl_v1_async(fid_cond_mrkt_div_code=code,
                                                                                   fid_input_iscd=iscd)
+    return
     print(f"========== test_get_quotations_inquire_ccnl_v1_async ==========")
     print(price_details)
 
@@ -136,6 +139,7 @@ async def test_get_quotations_inquire_time_itemchartprice_v1_async():
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
     iscd = "005930"
 
+    return
     chart_price_details = await client.rest_client.get_quotations_inquire_time_itemchartprice_v1_async(
         fid_cond_mrkt_div_code=code,
         fid_input_iscd=iscd,
@@ -154,6 +158,7 @@ async def test_get_quotations_inquire_time_dailychartprice_v1_async():
     code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
     iscd = "005930"
 
+    return
     chart_price_details = await client.rest_client.get_quotations_inquire_time_dailychartprice_v1_async(
         fid_cond_mrkt_div_code=code,
         fid_input_iscd=iscd,
