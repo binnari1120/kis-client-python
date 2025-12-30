@@ -5,6 +5,8 @@ import yaml
 
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
     KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_period_div_cd import \
+    KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd
 from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
     KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
@@ -77,7 +79,9 @@ async def test_get_quotations_price_v1_async():
 
     price_details = await client.rest_client.get_quotations_price_v1_async(fid_cond_mrkt_div_code=code,
                                                                            fid_input_iscd=iscd)
+    print(f"========== test_get_quotations_price_v1_async ==========")
     print(price_details)
+
     assert "output" in price_details
     assert "msg1" in price_details and price_details["msg1"] == "정상처리 되었습니다."
 
@@ -89,7 +93,9 @@ async def test_get_quotations_price_2_v1_async():
 
     price_details = await client.rest_client.get_quotations_price_2_v1_async(fid_cond_mrkt_div_code=code,
                                                                              fid_input_iscd=iscd)
+    print(f"========== test_get_quotations_price_2_v1_async ==========")
     print(price_details)
+
     assert "output" in price_details
     assert "msg1" in price_details and price_details["msg1"] == "정상처리 되었습니다."
 
@@ -101,9 +107,28 @@ async def test_get_quotations_inquire_ccnl_v1_async():
 
     price_details = await client.rest_client.get_quotations_inquire_ccnl_v1_async(fid_cond_mrkt_div_code=code,
                                                                                   fid_input_iscd=iscd)
+    print(f"========== test_get_quotations_inquire_ccnl_v1_async ==========")
     print(price_details)
+
     assert "output" in price_details
     assert "msg1" in price_details and price_details["msg1"] == "정상처리 되었습니다."
+
+
+@pytest.mark.asyncio
+async def test_get_quotations_inquire_daily_price_v1_async():
+    code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
+    iscd = "005930"
+
+    chart_price_details = await client.rest_client.get_quotations_inquire_daily_price_v1_async(
+        fid_cond_mrkt_div_code=code,
+        fid_input_iscd=iscd,
+        fid_period_div_code=KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd.M,
+        fid_org_adj_prc="1")
+
+    print(f"========== test_get_quotations_inquire_daily_price_v1_async ==========")
+    print(chart_price_details)
+
+    assert "msg1" in chart_price_details and chart_price_details["msg1"] == "정상처리 되었습니다."
 
 
 @pytest.mark.asyncio
@@ -117,8 +142,9 @@ async def test_get_quotations_inquire_time_itemchartprice_v1_async():
         fid_input_hour_1="090000",
         fid_pw_data_incu_yn="1",
         fid_etc_cls_code="")
+
+    print(f"========== test_get_quotations_inquire_time_itemchartprice_v1_async ==========")
     print(chart_price_details)
-    print("==========")
 
     assert "msg1" in chart_price_details and chart_price_details["msg1"] == "정상처리 되었습니다."
 
@@ -135,7 +161,8 @@ async def test_get_quotations_inquire_time_dailychartprice_v1_async():
         fid_pw_data_incu_yn="1",
         fid_input_date_1="20241023",
         fid_etc_cls_code="")
+
+    print(f"========== test_get_quotations_inquire_time_dailychartprice_v1_async ==========")
     print(chart_price_details)
-    print("==========")
 
     assert "msg1" in chart_price_details and chart_price_details["msg1"] == "정상처리 되었습니다."

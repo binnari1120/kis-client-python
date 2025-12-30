@@ -33,6 +33,7 @@ async def test_set_credentials():
     credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
                                                                     private_key=accounts["Spot"]["private_key"])
     await client.set_credentials_async(credentials=credentials)
+    assert False
 
 
 @pytest.mark.asyncio
@@ -41,6 +42,7 @@ async def test_post_cash_v1_async():
     cano = "81382087"
     acnt_prdt_cd = "01"
     pdno = "088350"  # 한화생명
+    pdno = "010140"
     ord_qty = "1"
     excg_id_dvsn_cd = KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd.SOR
 
@@ -55,6 +57,7 @@ async def test_post_cash_v1_async():
     sll_type = None
     ord_dvsn = "00"  # 지정가
     ord_unpr = "2900"
+    ord_unpr = "23150"
 
     # # 지정가 매도
     # is_closing = True
@@ -124,6 +127,19 @@ async def test_post_trading_order_rvsecncl_v1_async():
                                                                            qty_all_ord_yn=qty_all_ord_yn,
                                                                            excg_id_dvsn_cd=excg_id_dvsn_cd)
 
+    # {
+    #     "rt_cd": "0",
+    #     "msg_cd": "APBK0013",
+    #     "msg1": "주문 전송 완료 되었습니다.",
+    #     "output": {
+    #         "KRX_FWDG_ORD_ORGNO": "03930",
+    #         "ODNO": "0000503800",
+    #         "ORD_TMD": "152400",
+    #         "SOR_ODNO": ""
+    #     }
+    # }
+    
+    print(f"========== test_post_trading_order_rvsecncl_v1_async ==========")
     print(result)
     match result["msg_cd"]:
         case "APBK0918":
@@ -262,6 +278,7 @@ async def test_get_trading_inquire_psbl_rvsecncl_v1_async():
     #     "msg1": "조회가 완료되었습니다                                                           "
     # }
 
+    print(f"========== test_get_trading_inquire_psbl_rvsecncl_v1_async ==========")
     print(order_details)
     # print(order_details["output"])
     # print(order_details["ctx_area_fk100"])
@@ -283,6 +300,7 @@ async def test_get_trading_inquire_balance_v1_async():
                                                                                     inqr_dvsn=inqr_dvsn,
                                                                                     fund_sttl_icld_yn=fund_sttl_icld_yn,
                                                                                     prcs_dvsn=prcs_dvsn)
+    print(f"========== test_get_trading_inquire_balance_v1_async ==========")
     print(balance_details)
 
     # [
@@ -332,6 +350,7 @@ async def test_get_trading_inquire_balance_v1_async():
                                                                                     inqr_dvsn=inqr_dvsn,
                                                                                     fund_sttl_icld_yn=fund_sttl_icld_yn,
                                                                                     prcs_dvsn=prcs_dvsn)
+    print(f"========== test_get_trading_inquire_balance_v1_async ==========")
     print(balance_details)
     # print(balance_details["ctx_area_fk100"])
     # print(balance_details["output1"])
@@ -339,27 +358,23 @@ async def test_get_trading_inquire_balance_v1_async():
     print("==========")
 
 
-@pytest.mark.asyncio
-async def test_get_trading_inquire_balance_rlz_pl_v1_async():
-    cano = "81382087"
-    acnt_prdt_cd = "01"
-    afhr_flp_yn = KoreaInvestmentSecuritiesDomesticStockAfhrFlprYn.N
-    inqr_dvsn = "02"
-    fund_sttl_icld_yn = "Y"
-    prcs_dvsn = "01"
-
-    balance_details = await client.rest_client.get_trading_inquire_balance_rlz_pl_v1_async(cano=cano,
-                                                                                           acnt_prdt_cd=acnt_prdt_cd,
-                                                                                           afhr_flp_yn=afhr_flp_yn,
-                                                                                           inqr_dvsn=inqr_dvsn,
-                                                                                           fund_sttl_icld_yn=fund_sttl_icld_yn,
-                                                                                           prcs_dvsn=prcs_dvsn,
-                                                                                           ctx_area_fk100="81382087^01^N^N^02^01^Y^")
-    print(balance_details)
-    # print(balance_details["ctx_area_fk100"])
-    # print(balance_details["output1"])
-    # print(balance_details["output2"])
-    print("==========")
+# @pytest.mark.asyncio
+# async def test_get_trading_inquire_balance_rlz_pl_v1_async():
+#     cano = "81382087"
+#     acnt_prdt_cd = "01"
+#     afhr_flp_yn = KoreaInvestmentSecuritiesDomesticStockAfhrFlprYn.N
+#     inqr_dvsn = "02"
+#     fund_sttl_icld_yn = "Y"
+#     prcs_dvsn = "01"
+#
+#     balance_details = await client.rest_client.get_trading_inquire_balance_rlz_pl_v1_async(cano=cano,
+#                                                                                            acnt_prdt_cd=acnt_prdt_cd,
+#                                                                                            afhr_flp_yn=afhr_flp_yn,
+#                                                                                            inqr_dvsn=inqr_dvsn,
+#                                                                                            fund_sttl_icld_yn=fund_sttl_icld_yn,
+#                                                                                            prcs_dvsn=prcs_dvsn)
+#     print(f"========== test_get_trading_inquire_balance_rlz_pl_v1_async ==========")
+#     print(balance_details)
 
 
 @pytest.mark.asyncio
@@ -369,9 +384,11 @@ async def test_get_trading_inquire_account_balance_v1_async():
 
     balance_details = await client.rest_client.get_trading_inquire_account_balance_v1_async(cano=cano,
                                                                                             acnt_prdt_cd=acnt_prdt_cd)
+    print(f"========== test_get_trading_inquire_account_balance_v1_async ==========")
     print(balance_details)
 
 
+# 투자계좌자산현황조회
 @pytest.mark.asyncio
 async def test_get_trading_inquire_psbl_order_v1_async():
     cano = "81382087"
@@ -389,16 +406,18 @@ async def test_get_trading_inquire_psbl_order_v1_async():
                                                                                        ord_dvsn=ord_dvsn,
                                                                                        cma_evlu_amt_icld_yn=cma_evlu_amt_icld_yn,
                                                                                        ovrs_icld_yn=ovrs_icld_yn)
+    print(f"========== test_get_trading_inquire_psbl_order_v1_async ==========")
     print(balance_details)
 
 
 @pytest.mark.asyncio
-async def test_get_psbl_sell_v1_async():
+async def test_get_trading_inquire_psbl_sell_v1_async():
     cano = "81382087"
     acnt_prdt_cd = "01"
     pdno = "088350"  # 한화생명
 
-    balance_details = await client.rest_client.get_trading_inquire_psbl_sell_v1_async(cano=cano,
+    position_details = await client.rest_client.get_trading_inquire_psbl_sell_v1_async(cano=cano,
                                                                                       acnt_prdt_cd=acnt_prdt_cd,
                                                                                       pdno=pdno)
-    print(balance_details)
+    print(f"========== test_get_trading_inquire_psbl_sell_v1_async ==========")
+    print(position_details)
