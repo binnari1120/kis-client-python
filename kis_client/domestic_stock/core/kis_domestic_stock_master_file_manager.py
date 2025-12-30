@@ -142,7 +142,8 @@ class KoreaInvestmentSecuritiesDomesticStockMasterFileManager:
         wf1.close()
         wf2.close()
 
-        part1_columns = ['단축코드', '표준코드', '한글종목명']
+        # part1_columns = ['단축코드', '표준코드', '한글종목명']
+        part1_columns = ['단축코드', '표준코드', '한글명']
         df1 = pd.read_csv(tmp_fil1, header=None, names=part1_columns, encoding='cp949')
 
         field_specs = [2, 1,
