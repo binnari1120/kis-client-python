@@ -10,6 +10,8 @@ from kis_client.domestic_stock.enums.kis_domestic_stock_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
     KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_period_div_cd import \
+    KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_sll_buy_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockSllBuyDvsnCd
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
@@ -39,7 +41,6 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             "appsecret": self._credential.private_key,
             "custtype": "B" if self._credential.is_corporate_account else "P",
         }
-
 
     def _ensure_credentials(self):
         if self._credential is None:
@@ -551,6 +552,36 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         try:
             data = await self._executor.execute_public_api_call_async(http_method="get",
                                                                       endpoint=QUOTATIONS_INQUIRE_CCNL_V1,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise
+
+    '''
+    주식현재가 일자별
+    '''
+
+    async def get_quotations_inquire_daily_price_v1_async(
+            self,
+            fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
+            fid_input_iscd: str,
+            fid_period_div_code: KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd,
+            fid_org_adj_prc: str) -> Optional[Any]:
+        self._ensure_credentials()
+
+        parameters = dict({
+            "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
+            "FID_INPUT_ISCD": fid_input_iscd,
+            "FID_PERIOD_DIV_CODE": fid_period_div_code.value,
+            "FID_ORG_ADJ_PRC": fid_org_adj_prc
+        })
+
+        self._headers["tr_id"] = "FHKST01010400" if self._credential.is_demo_account else "FHKST01010400"
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="get",
+                                                                      endpoint=QUOTATIONS_INQUIRE_DAILY_PRICE_V1,
                                                                       headers=self._headers,
                                                                       parameters=parameters)
             return data

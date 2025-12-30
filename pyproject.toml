@@ -20,3 +20,8 @@ dependencies = [
 
 [tool.setuptools]
 packages = { find = { include = ["kis_client", "kis_client.*"] }}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
