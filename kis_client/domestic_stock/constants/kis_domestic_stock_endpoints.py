@@ -19,3 +19,6 @@ QUOTATIONS_INQUIRE_CCNL_V1 = "/uapi/domestic-stock/v1/quotations/inquire-ccnl"
 QUOTATIONS_INQUIRE_DAILY_PRICE_V1 = "/uapi/domestic-stock/v1/quotations/inquire-daily-price"
 QUOTATIONS_INQUIRE_TIME_ITEMCHARTPRICE_V1 = "/uapi/domestic-stock/v1/quotations/inquire-time-itemchartprice"
 QUOTATIONS_INQUIRE_TIME_DAILYCHARTPRICE_V1 = "/uapi/domestic-stock/v1/quotations/inquire-time-dailychartprice"
+
+# Industry / Others
+QUOTATIONS_CHK_HOLIDAY_V1 = "/uapi/domestic-stock/v1/quotations/chk-holiday"

@@ -50,6 +50,9 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         if self._access_token is None:
             raise ValueError("Please set access token!")
 
+    '''
+    주식주문(현금)
+    '''
     async def post_trading_order_cash_v1_async(self,
                                                cano: str,
                                                acnt_prdt_cd: str,
@@ -561,7 +564,6 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
     '''
     주식현재가 일자별
     '''
-
     async def get_quotations_inquire_daily_price_v1_async(
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
@@ -647,3 +649,32 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             return data
         except Exception:
             raise
+
+    '''
+    분류: [국내주식] 업종/기타
+    역할: 국내휴장일조회
+    '''
+
+    async def get_quotations_chk_holiday_v1_async(
+            self,
+            bass_dt: str) -> Optional[Any]:
+        self._ensure_credentials()
+        # self._ensure_access_token()
+
+        parameters = dict({
+            "BASS_DT": bass_dt,
+            "CTX_AREA_NK": "",
+            "CTX_AREA_FK": ""
+        })
+
+        self._headers["tr_id"] = "CTCA0903R"
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="get",
+                                                                      endpoint=QUOTATIONS_CHK_HOLIDAY_V1,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise
+
