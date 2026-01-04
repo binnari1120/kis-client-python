@@ -14,9 +14,13 @@ class KoreaInvestmentSecuritiesDomesticStockMasterFileManager:
         self._saving_directory = os.getcwd()
         os.chdir(self._saving_directory)
 
-    def synchronize(self):
-        self.kosfi_dataframe = self._get_kospi_master_dataframe()
-        self.kosdaq_dataframe = self._get_kosdaq_master_dataframe()
+    def synchronize(self,
+                    include_kosfi: bool = True,
+                    include_kosdaq: bool = True):
+        if include_kosfi:
+            self.kosfi_dataframe = self._get_kospi_master_dataframe()
+        if include_kosdaq:
+            self.kosdaq_dataframe = self._get_kosdaq_master_dataframe()
 
     def _download_kospi_master_file(self):
         ssl._create_default_https_context = ssl._create_unverified_context
