@@ -3,10 +3,13 @@ import pathlib
 import pytest
 import yaml
 
+from kis_client.domestic_stock.enums.kis_domestic_stock_ccld_dvsn import KoreaInvestmentSecuritiesDomesticStockCcldDvsn
 from kis_client.domestic_stock.enums.kis_domestic_stock_afhr_flpr_yn import \
     KoreaInvestmentSecuritiesDomesticStockAfhrFlprYn
 from kis_client.domestic_stock.enums.kis_domestic_stock_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd
+from kis_client.domestic_stock.enums.kis_domestic_stock_sll_buy_dvsn_cd import \
+    KoreaInvestmentSecuritiesDomesticStockSllBuyDvsnCd
 from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
     KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
@@ -140,7 +143,7 @@ async def test_post_trading_order_rvsecncl_v1_async():
     #         "SOR_ODNO": ""
     #     }
     # }
-    
+
     print(f"========== test_post_trading_order_rvsecncl_v1_async ==========")
     print(result)
     match result["msg_cd"]:
@@ -154,6 +157,92 @@ async def test_post_trading_order_rvsecncl_v1_async():
             assert result["msg1"] == "주문구분코드 오류 입니다."
         case "APBK0927":  # rt_cd: 7
             assert result["msg1"] == "정정취소 가능수량이 없습니다."
+
+
+@pytest.mark.asyncio
+async def test_get_trading_inquire_daily_ccld_v1_async():
+    # {
+    #     "ctx_area_fk100": "81382087!^01!^20251201!^20260104!^00000A088350!^01!^00!^00!^                                        ",
+    #     "ctx_area_nk100": "                                                                                                    ",
+    #     "output1": [
+    #         {
+    #             "ord_dt": "20251217",
+    #             "ord_gno_brno": "03930",
+    #             "odno": "0000085100",
+    #             "orgn_odno": "",
+    #             "ord_dvsn_name": "시장가",
+    #             "sll_buy_dvsn_cd": "02",
+    #             "sll_buy_dvsn_cd_name": "현금매수",
+    #             "pdno": "088350",
+    #             "prdt_name": "한화생명",
+    #             "ord_qty": "1",
+    #             "ord_unpr": "0",
+    #             "ord_tmd": "094414",
+    #             "tot_ccld_qty": "1",
+    #             "avg_prvs": "3145",
+    #             "cncl_yn": "",
+    #             "tot_ccld_amt": "3145",
+    #             "loan_dt": "",
+    #             "ordr_empno": "OpnAPI",
+    #             "ord_dvsn_cd": "01",
+    #             "cncl_cfrm_qty": "0",
+    #             "rmn_qty": "0",
+    #             "rjct_qty": "0",
+    #             "ccld_cndt_name": "없음",
+    #             "inqr_ip_addr": "211.206.164.254",
+    #             "cpbc_ordp_ord_rcit_dvsn_cd": "",
+    #             "cpbc_ordp_infm_mthd_dvsn_cd": "",
+    #             "infm_tmd": "",
+    #             "ctac_tlno": "",
+    #             "prdt_type_cd": "",
+    #             "excg_dvsn_cd": "12",
+    #             "cpbc_ordp_mtrl_dvsn_cd": "",
+    #             "ord_orgno": "00000",
+    #             "rsvn_ord_end_dt": "",
+    #             "excg_id_dvsn_cd": "SOR",
+    #             "stpm_cndt_pric": "0",
+    #             "stpm_efct_occr_dtmd": ""
+    #         }
+    #     ],
+    #     "output2": {
+    #         "tot_ord_qty": "1",
+    #         "tot_ccld_qty": "1",
+    #         "tot_ccld_amt": "3145",
+    #         "prsm_tlex_smtl": "0",
+    #         "pchs_avg_pric": "3145.0000"
+    #     },
+    #     "rt_cd": "0",
+    #     "msg_cd": "KIOK0460",
+    #     "msg1": "조회 되었습니다. (마지막 자료)                                                  "
+    # }
+    cano = "81382087"
+    acnt_prdt_cd = "01"
+    inqr_strt_dt = "20251201"
+    inqr_end_dt = "20260104"
+    sll_buy_dvsn_cd = KoreaInvestmentSecuritiesDomesticStockSllBuyDvsnCd.Buy
+    pdno = "088350"  # 한화생명
+    ord_gno_brno = ""
+    ccld_dvsn = KoreaInvestmentSecuritiesDomesticStockCcldDvsn.Filled
+    inqr_dvsn = "00"
+    inqr_dvsn_3 = "00"
+
+    excg_id_dvsn_cd = KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd.SOR
+
+    result = await client.rest_client.get_trading_inquire_daily_ccld_v1_async(cano=cano,
+                                                                              acnt_prdt_cd=acnt_prdt_cd,
+                                                                              inqr_strt_dt=inqr_strt_dt,
+                                                                              inqr_end_dt=inqr_end_dt,
+                                                                              sll_buy_dvsn_cd=sll_buy_dvsn_cd,
+                                                                              pdno=pdno,
+                                                                              ord_gno_brno=ord_gno_brno,
+                                                                              ccld_dvsn=ccld_dvsn,
+                                                                              inqr_dvsn=inqr_dvsn,
+                                                                              inqr_dvsn_3=inqr_dvsn_3,
+                                                                              excg_id_dvsn_cd=excg_id_dvsn_cd)
+
+
+    print(f"========== test_get_trading_inquire_daily_ccld_v1_async ==========")
+    print(result)
 
 
 # @pytest.mark.asyncio
@@ -419,7 +508,7 @@ async def test_get_trading_inquire_psbl_sell_v1_async():
     pdno = "088350"  # 한화생명
 
     position_details = await client.rest_client.get_trading_inquire_psbl_sell_v1_async(cano=cano,
-                                                                                      acnt_prdt_cd=acnt_prdt_cd,
-                                                                                      pdno=pdno)
+                                                                                       acnt_prdt_cd=acnt_prdt_cd,
+                                                                                       pdno=pdno)
     print(f"========== test_get_trading_inquire_psbl_sell_v1_async ==========")
     print(position_details)

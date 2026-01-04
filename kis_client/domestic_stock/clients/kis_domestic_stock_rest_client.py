@@ -1,6 +1,7 @@
 from typing import Dict
 from typing import Optional, Any, Union
 
+from kis_client.domestic_stock.enums.kis_domestic_stock_ccld_dvsn import KoreaInvestmentSecuritiesDomesticStockCcldDvsn
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_input_iscd import KoreaInvestmentSecuritiesDomesticStockFidInputIscd
 from kis_client.domestic_stock.constants.kis_domestic_stock_endpoints import *
 from kis_client.domestic_stock.core.kis_domestic_stock_api_call_executor import \
@@ -54,9 +55,9 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             raise ValueError("Please set access token!")
 
     '''
-    주식주문(현금)
+        분류: [국내주식] 주문/계좌
+        역할: 주식주문(현금)
     '''
-
     async def post_trading_order_cash_v1_async(self,
                                                cano: str,
                                                acnt_prdt_cd: str,
@@ -110,6 +111,10 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         except Exception:
             raise
 
+    '''
+        분류: [국내주식] 주문/계좌
+        역할: 주식주문(정정취소)
+    '''
     async def post_trading_order_rvsecncl_v1_async(self,
                                                    cano: str,
                                                    acnt_prdt_cd: str,
@@ -167,6 +172,75 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         except Exception:
             raise
 
+    '''
+        분류: [국내주식] 주문/계좌
+        역할: 주식일별주문체결조회
+    '''
+    async def get_trading_inquire_daily_ccld_v1_async(
+            self,
+            cano: str,
+            acnt_prdt_cd: str,
+            inqr_strt_dt: str,
+            inqr_end_dt: str,
+            sll_buy_dvsn_cd: KoreaInvestmentSecuritiesDomesticStockSllBuyDvsnCd,
+            pdno: str,
+            ord_gno_brno: str,
+            ccld_dvsn: KoreaInvestmentSecuritiesDomesticStockCcldDvsn,
+            inqr_dvsn: str,
+            inqr_dvsn_3: str,
+            excg_id_dvsn_cd: KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd,
+            odno: Optional[str] = None,
+            inqr_dvsn_1: Optional[str] = None,
+            ctx_area_fk100: Optional[str] = None,
+            ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
+
+        self._ensure_credentials()
+        self._ensure_access_token()
+
+        parameters = dict({
+            "CANO": cano,
+            "ACNT_PRDT_CD": acnt_prdt_cd,
+            "INQR_STRT_DT": inqr_strt_dt,
+            "INQR_END_DT": inqr_end_dt,
+            "SLL_BUY_DVSN_CD": sll_buy_dvsn_cd.value,
+            "PDNO": pdno,
+            "ORD_GNO_BRNO": ord_gno_brno,
+            "ODNO": "",
+            "CCLD_DVSN": ccld_dvsn.value,
+            "INQR_DVSN": inqr_dvsn,
+            "INQR_DVSN_1": "",
+            "INQR_DVSN_3": inqr_dvsn_3,
+            "EXCG_ID_DVSN_CD": excg_id_dvsn_cd.value,
+            "CTX_AREA_FK100": "",
+            "CTX_AREA_NK100": "",
+        })
+
+        if ctx_area_fk100 is not None:
+            parameters["ODNO"] = odno
+        if ctx_area_fk100 is not None:
+            parameters["INQR_DVSN_1"] = inqr_dvsn_1
+        if ctx_area_fk100 is not None:
+            parameters["CTX_AREA_FK100"] = ctx_area_fk100
+        if ctx_area_nk100 is not None:
+            parameters["CTX_AREA_NK100"] = ctx_area_nk100
+
+        self._headers["tr_id"] = "VTTC0081R" if self._credential.is_demo_account else "TTTC0081R"
+        if 3:
+            self._headers["tr_id"] = "VTSC9215R" if self._credential.is_demo_account else "CTSC9215R"
+
+        try:
+            data = await self._executor.execute_private_api_call_async(http_method="get",
+                                                                       endpoint=TRADING_ORDER_RESV_CCNL_V1,
+                                                                       headers=self._headers,
+                                                                       parameters=parameters)
+            return data
+        except Exception:
+            raise
+
+    '''
+        분류: [국내주식] 주문/계좌
+        역할: 주식정정취소가능주문조회
+    '''
     async def get_trading_inquire_balance_v1_async(
             self,
             cano: str,
@@ -566,9 +640,9 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             raise
 
     '''
-    주식현재가 일자별
+        분류: [국내주식] 업종/기타
+        역할: 주식현재가 일자별
     '''
-
     async def get_quotations_inquire_daily_price_v1_async(
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
@@ -656,8 +730,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             raise
 
     '''
-    분류: [국내주식] 업종/기타
-    역할: 국내휴장일조회
+        분류: [국내주식] 업종/기타
+        역할: 국내휴장일조회
     '''
 
     async def get_quotations_chk_holiday_v1_async(
@@ -684,8 +758,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             raise
 
     '''
-    분류: [국내주식] 순위분석
-    역할: 국내주식 시가총액 상위
+        분류: [국내주식] 순위분석
+        역할: 국내주식 시가총액 상위
     '''
 
     async def get_ranking_market_cap_v1_async(
