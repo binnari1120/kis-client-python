@@ -33,6 +33,8 @@ async def test_set_credentials():
     credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
                                                                     private_key=accounts["Spot"]["private_key"])
     await client.set_credentials_async(credentials=credentials)
+
+    print(f"========== test_set_credentials ==========")
     assert False
 
 

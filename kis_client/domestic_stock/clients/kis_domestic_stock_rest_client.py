@@ -1,6 +1,7 @@
 from typing import Dict
 from typing import Optional, Any, Union
 
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_input_iscd import KoreaInvestmentSecuritiesDomesticStockFidInputIscd
 from kis_client.domestic_stock.constants.kis_domestic_stock_endpoints import *
 from kis_client.domestic_stock.core.kis_domestic_stock_api_call_executor import \
     KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor
@@ -10,6 +11,8 @@ from kis_client.domestic_stock.enums.kis_domestic_stock_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
     KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_div_cls_code import \
+    KoreaInvestmentSecuritiesDomesticStockFidDivClsCode
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_period_div_cd import \
     KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_sll_buy_dvsn_cd import \
@@ -53,6 +56,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
     '''
     주식주문(현금)
     '''
+
     async def post_trading_order_cash_v1_async(self,
                                                cano: str,
                                                acnt_prdt_cd: str,
@@ -564,6 +568,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
     '''
     주식현재가 일자별
     '''
+
     async def get_quotations_inquire_daily_price_v1_async(
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
@@ -678,3 +683,44 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         except Exception:
             raise
 
+    '''
+    분류: [국내주식] 순위분석
+    역할: 국내주식 시가총액 상위
+    '''
+
+    async def get_ranking_market_cap_v1_async(
+            self,
+            fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
+            fid_div_cls_code: KoreaInvestmentSecuritiesDomesticStockFidDivClsCode,
+            fid_input_iscd: KoreaInvestmentSecuritiesDomesticStockFidInputIscd) -> Optional[Any]:
+        self._ensure_credentials()
+        if self._credential.is_demo_account:
+            raise ValueError("Unsupported for demo account!")
+
+        # self._ensure_access_token()
+
+        if fid_cond_mrkt_div_code == KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN:
+            raise ValueError("Unified market is not supported!")
+
+        parameters = dict({
+            "fid_cond_mrkt_div_code": fid_cond_mrkt_div_code.value,
+            "fid_cond_scr_div_code": "20174",
+            "fid_div_cls_code": fid_div_cls_code.value,
+            "fid_input_iscd": fid_input_iscd.value,
+            "fid_trgt_cls_code": "0",
+            "fid_trgt_exls_cls_code": "0",
+            "fid_input_price_2": "",
+            "fid_input_price_1": "",
+            "fid_vol_cnt": "",
+        })
+
+        self._headers["tr_id"] = "FHPST01740000"
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="get",
+                                                                      endpoint=RANKING_MARKET_CAP_V1,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise

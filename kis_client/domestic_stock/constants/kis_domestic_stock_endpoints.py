@@ -22,3 +22,6 @@ QUOTATIONS_INQUIRE_TIME_DAILYCHARTPRICE_V1 = "/uapi/domestic-stock/v1/quotations
 
 # Industry / Others
 QUOTATIONS_CHK_HOLIDAY_V1 = "/uapi/domestic-stock/v1/quotations/chk-holiday"
+
+# Ranking
+RANKING_MARKET_CAP_V1 = "/uapi/domestic-stock/v1/ranking/market-cap"
