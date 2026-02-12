@@ -225,7 +225,6 @@ async def test_get_trading_inquire_daily_ccld_v1_async():
     ccld_dvsn = KoreaInvestmentSecuritiesDomesticStockCcldDvsn.Filled
     inqr_dvsn = "00"
     inqr_dvsn_3 = "00"
-
     excg_id_dvsn_cd = KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd.SOR
 
     result = await client.rest_client.get_trading_inquire_daily_ccld_v1_async(cano=cano,

@@ -12,7 +12,7 @@ from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
 
 
 class KoreaInvestmentSecuritiesDomesticStockAccessTokenManager:
-    SERVICE_NAME = "KIS-CLIENT"
+    SERVICE_NAME = "KIS-DOMESTIC-STOCK-CLIENT"
 
     def __init__(self, executor: KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor):
         self._credential: Optional[KoreaInvestmentSecuritiesDomesticStockCredentials] = None
@@ -60,8 +60,9 @@ class KoreaInvestmentSecuritiesDomesticStockAccessTokenManager:
             print("토큰 없음 → 신규 발급 중 ...")
             token_details = await self.post_oauth2_token_async()
             print(token_details)
+            access_token = token_details["access_token"]
             self._set_access_token(public_key=public_key,
-                                   access_token=token_details["access_token"],
+                                   access_token=access_token,
                                    expiration=token_details["access_token_token_expired"])
         return access_token
 
