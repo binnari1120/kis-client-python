@@ -94,7 +94,6 @@ async def test_get_quotations_price_2_v1_async():
 
     price_details = await client.rest_client.get_quotations_price_2_v1_async(fid_cond_mrkt_div_code=code,
                                                                              fid_input_iscd=iscd)
-    return
     print(f"========== test_get_quotations_price_2_v1_async ==========")
     print(price_details)
 

@@ -38,11 +38,13 @@ class KoreaInvestmentSecuritiesDomesticStockAccessTokenManager:
                     expiration: str) -> bool:
         if not expiration:
             return True
+
         tz_info = timezone(timedelta(hours=9))
         current_kst_date = datetime.now().replace(tzinfo=tz_info)
         expiration_date = datetime.fromisoformat(expiration)
         if expiration_date.tzinfo is None:
             expiration_date = expiration_date.replace(tzinfo=tz_info)
+
         return expiration_date <= current_kst_date
 
     def _set_access_token(self,

@@ -22,5 +22,5 @@ async def test_set_credentials():
     assert len(master_file_manager.kosfi_dataframe[master_file_manager.kosfi_dataframe[("단축코드")] == "005930"]) == 1
 
     print(master_file_manager.kosdaq_dataframe.columns)
-    assert len(master_file_manager.kosdaq_dataframe[master_file_manager.kosdaq_dataframe[("한글종목명")] == "셀트리온제약"]) == 1
+    assert len(master_file_manager.kosdaq_dataframe[master_file_manager.kosdaq_dataframe[("한글명")] == "셀트리온제약"]) == 1
     assert len(master_file_manager.kosdaq_dataframe[master_file_manager.kosdaq_dataframe[("단축코드")] == "068760"]) == 1

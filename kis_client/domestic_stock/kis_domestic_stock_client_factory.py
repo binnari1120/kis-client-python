@@ -35,5 +35,4 @@ class KoreaInvestmentSecuritiesDomesticStockClientFactory:
 
         return KoreaInvestmentSecuritiesDomesticStockClient(rest_client=rest_client,
                                                             public_websocket_client=public_web_socket_client,
-                                                            private_websocket_client=private_web_socket_client,
-                                                            access_token_manager=access_token_manager)
+                                                            private_websocket_client=private_web_socket_client)

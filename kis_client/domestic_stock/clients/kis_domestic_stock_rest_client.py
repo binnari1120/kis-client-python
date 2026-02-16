@@ -1,19 +1,23 @@
+from datetime import datetime, timezone, timedelta
 from typing import Dict
 from typing import Optional, Any, Union
 
-from kis_client.domestic_stock.enums.kis_domestic_stock_ccld_dvsn import KoreaInvestmentSecuritiesDomesticStockCcldDvsn
-from kis_client.domestic_stock.enums.kis_domestic_stock_fid_input_iscd import KoreaInvestmentSecuritiesDomesticStockFidInputIscd
+import keyring
+
 from kis_client.domestic_stock.constants.kis_domestic_stock_endpoints import *
 from kis_client.domestic_stock.core.kis_domestic_stock_api_call_executor import \
     KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor
 from kis_client.domestic_stock.enums.kis_domestic_stock_afhr_flpr_yn import \
     KoreaInvestmentSecuritiesDomesticStockAfhrFlprYn
+from kis_client.domestic_stock.enums.kis_domestic_stock_ccld_dvsn import KoreaInvestmentSecuritiesDomesticStockCcldDvsn
 from kis_client.domestic_stock.enums.kis_domestic_stock_excg_id_dvsn_cd import \
     KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
     KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_div_cls_code import \
     KoreaInvestmentSecuritiesDomesticStockFidDivClsCode
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_input_iscd import \
+    KoreaInvestmentSecuritiesDomesticStockFidInputIscd
 from kis_client.domestic_stock.enums.kis_domestic_stock_fid_period_div_cd import \
     KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd
 from kis_client.domestic_stock.enums.kis_domestic_stock_sll_buy_dvsn_cd import \
@@ -23,55 +27,115 @@ from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
 
 
 class KoreaInvestmentSecuritiesDomesticStockRestClient:
+    SERVICE_NAME = "KIS-DOMESTIC-STOCK-CLIENT"
     RECV_WINDOW = 50000
 
     def __init__(self, executor: KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor):
         self._credential: Optional[KoreaInvestmentSecuritiesDomesticStockCredentials] = None
         self._executor = executor
-        self._access_token: Optional[str] = None
         self._headers: Optional[Dict] = None
 
     def set_credentials(self,
                         credentials: KoreaInvestmentSecuritiesDomesticStockCredentials):
         self._credential = credentials
 
-    def set_access_token(self,
-                         access_token: str):
-        self._access_token = access_token
+    def _ensure_credentials(self):
+        if self._credential is None:
+            raise ValueError("Please set credentials!")
+
+    async def _ensure_access_token_async(self, allow_demo: bool = True):
+        self._ensure_credentials()
+        if not allow_demo and self._credential.is_demo_account:
+            raise ValueError("Unsupported for demo account!")
+
+        await self._update_access_token_async(self._credential.public_key)
+
+    async def _update_access_token_async(self, public_key: str):
+        access_token = keyring.get_password(self.SERVICE_NAME, f"{public_key}:access_token")
+        expiration = keyring.get_password(self.SERVICE_NAME, f"{public_key}:expiration")
+
+        is_new_token_required = False
+        if not access_token:
+            is_new_token_required = True
+            print("토큰 없음 → 신규 발급 중 ...")
+        elif self._is_expired(expiration=expiration):
+            is_new_token_required = True
+            print("토큰 만료 → 신규 발급 중 ...")
+
+        if is_new_token_required:
+            token_details = await self._post_oauth2_token_async()
+            print(token_details)
+            access_token = token_details["access_token"]
+            expiration = token_details["access_token_token_expired"]
+            if access_token is None:
+                raise ValueError("Please set access token!")
+
+        self._set_access_token(access_token=access_token,
+                               expiration=expiration)
+
+    @staticmethod
+    def _is_expired(expiration: str) -> bool:
+        if not expiration:
+            return True
+
+        tz_info = timezone(timedelta(hours=9))
+        current_kst_date = datetime.now().replace(tzinfo=tz_info)
+        expiration_date = datetime.fromisoformat(expiration)
+        if expiration_date.tzinfo is None:
+            expiration_date = expiration_date.replace(tzinfo=tz_info)
+
+        return expiration_date <= current_kst_date
+
+    async def _post_oauth2_token_async(self) -> Optional[Any]:
+        parameters = dict({
+            "grant_type": "client_credentials",
+            "appkey": self._credential.public_key,
+            "appsecret": self._credential.private_key
+        })
+
+        try:
+            data = await self._executor.execute_public_api_call_async(http_method="post",
+                                                                      endpoint=OAUTH2_TOKEN_P,
+                                                                      headers=self._headers,
+                                                                      parameters=parameters)
+            return data
+        except Exception:
+            raise
+
+    def _set_access_token(self,
+                          access_token: str,
+                          expiration: str):
+
+        keyring.set_password(self.SERVICE_NAME, f"{self._credential.public_key}:access_token", access_token)
+        keyring.set_password(self.SERVICE_NAME, f"{self._credential.public_key}:expiration", expiration)
+
         self._headers = {
             "content-type": "application/json; charset=utf-8",
-            "authorization": f"Bearer {self._access_token}",
+            "authorization": f"Bearer {access_token}",
             "appkey": self._credential.public_key,
             "appsecret": self._credential.private_key,
             "custtype": "B" if self._credential.is_corporate_account else "P",
         }
 
-    def _ensure_credentials(self):
-        if self._credential is None:
-            raise ValueError("Please set credentials!")
-
-    def _ensure_access_token(self):
-        if self._access_token is None:
-            raise ValueError("Please set access token!")
-
     '''
         분류: [국내주식] 주문/계좌
         역할: 주식주문(현금)
     '''
-    async def post_trading_order_cash_v1_async(self,
-                                               cano: str,
-                                               acnt_prdt_cd: str,
-                                               pdno: str,
-                                               ord_dvsn: str,
-                                               ord_qty: str,
-                                               is_closing: bool = False,
-                                               sll_type: Optional[str] = None,
-                                               ord_unpr: str = "0",
-                                               cndt_pric: Optional[str] = None,
-                                               excg_id_dvsn_cd: Optional[
+
+    async def _post_trading_order_cash_v1_async(self,
+                                                cano: str,
+                                                acnt_prdt_cd: str,
+                                                pdno: str,
+                                                ord_dvsn: str,
+                                                ord_qty: str,
+                                                is_closing: bool = False,
+                                                sll_type: Optional[str] = None,
+                                                ord_unpr: str = "0",
+                                                cndt_pric: Optional[str] = None,
+                                                excg_id_dvsn_cd: Optional[
                                                    KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd] = None):
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "CANO": cano,
@@ -115,6 +179,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         분류: [국내주식] 주문/계좌
         역할: 주식주문(정정취소)
     '''
+
     async def post_trading_order_rvsecncl_v1_async(self,
                                                    cano: str,
                                                    acnt_prdt_cd: str,
@@ -128,8 +193,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
                                                    cndt_pric: Optional[str] = None,
                                                    excg_id_dvsn_cd: Optional[
                                                        KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd] = None):
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "CANO": cano,
@@ -176,6 +241,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         분류: [국내주식] 주문/계좌
         역할: 주식일별주문체결조회
     '''
+
     async def get_trading_inquire_daily_ccld_v1_async(
             self,
             cano: str,
@@ -194,8 +260,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             ctx_area_fk100: Optional[str] = None,
             ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
 
-        self._ensure_credentials()
-        self._ensure_access_token()
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "CANO": cano,
@@ -241,6 +306,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         분류: [국내주식] 주문/계좌
         역할: 주식정정취소가능주문조회
     '''
+
     async def get_trading_inquire_balance_v1_async(
             self,
             cano: str,
@@ -252,8 +318,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             ctx_area_fk100: Optional[str] = None,
             ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
 
-        self._ensure_credentials()
-        self._ensure_access_token()
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "CANO": cano,
@@ -301,11 +366,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
                                                           ctal_tlno: Optional[str] = None,
                                                           rsvn_ord_orgno: Optional[str] = None,
                                                           rsvn_ord_ord_dt: Optional[str] = None):
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
 
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -355,11 +417,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             ctx_area_fk100: Optional[str] = None,
             ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
 
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -397,11 +455,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             ctx_area_fk100: Optional[str] = None,
             ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
 
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -445,11 +499,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             ctx_area_fk100: Optional[str] = None,
             ctx_area_nk100: Optional[str] = None) -> Optional[Any]:
 
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -480,11 +530,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             cano: str,
             acnt_prdt_cd: str) -> Optional[Any]:
 
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -514,8 +560,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             cma_evlu_amt_icld_yn: str = "Y",
             ovrs_icld_yn: str = "Y") -> Optional[Any]:
 
-        self._ensure_credentials()
-        self._ensure_access_token()
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "CANO": cano,
@@ -544,11 +589,7 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             acnt_prdt_cd: str,
             pdno: str) -> Optional[Any]:
 
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
-
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "CANO": cano,
@@ -571,8 +612,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_input_iscd: str) -> Optional[Any]:
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -594,11 +635,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_input_iscd: str) -> Optional[Any]:
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
 
-        self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -620,8 +658,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_input_iscd: str) -> Optional[Any]:
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -643,13 +681,15 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         분류: [국내주식] 업종/기타
         역할: 주식현재가 일자별
     '''
+
     async def get_quotations_inquire_daily_price_v1_async(
             self,
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_input_iscd: str,
             fid_period_div_code: KoreaInvestmentSecuritiesDomesticStockFidPeriodDivCd,
             fid_org_adj_prc: str) -> Optional[Any]:
-        self._ensure_credentials()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -676,8 +716,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             fid_input_hour_1: str,
             fid_pw_data_incu_yn: str,
             fid_etc_cls_code: str) -> Optional[Any]:
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -706,8 +746,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             fid_input_date_1: str,
             fid_pw_data_incu_yn: str,
             fid_etc_cls_code: str) -> Optional[Any]:
-        self._ensure_credentials()
-        self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "FID_COND_MRKT_DIV_CODE": fid_cond_mrkt_div_code.value,
@@ -737,8 +777,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
     async def get_quotations_chk_holiday_v1_async(
             self,
             bass_dt: str) -> Optional[Any]:
-        self._ensure_credentials()
-        # self._ensure_access_token()
+
+        await self._ensure_access_token_async()
 
         parameters = dict({
             "BASS_DT": bass_dt,
@@ -767,11 +807,8 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
             fid_cond_mrkt_div_code: KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode,
             fid_div_cls_code: KoreaInvestmentSecuritiesDomesticStockFidDivClsCode,
             fid_input_iscd: KoreaInvestmentSecuritiesDomesticStockFidInputIscd) -> Optional[Any]:
-        self._ensure_credentials()
-        if self._credential.is_demo_account:
-            raise ValueError("Unsupported for demo account!")
 
-        # self._ensure_access_token()
+        await self._ensure_access_token_async(allow_demo=False)
 
         if fid_cond_mrkt_div_code == KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN:
             raise ValueError("Unified market is not supported!")

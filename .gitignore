@@ -166,6 +166,8 @@ temp/
 
 # Others
 configurations/
+kospi_code.xlsx
+kosdaq_code.xlsx
 # ------------------------
 # End of file
 # ------------------------

@@ -1,4 +1,5 @@
 import asyncio
+import asyncio
 import multiprocessing
 import os
 import pathlib
@@ -9,10 +10,34 @@ import yaml
 
 from kis_client.domestic_stock.core.kis_domestic_stock_inter_process_rate_limiter import \
     KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter
+from kis_client.domestic_stock.enums.kis_domestic_stock_fid_cond_mrkt_div_code import \
+    KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode
 from kis_client.domestic_stock.kis_domestic_stock_client_factory import \
     KoreaInvestmentSecuritiesDomesticStockClientFactory
 from kis_client.domestic_stock.models.kis_domestic_stock_credentials import \
     KoreaInvestmentSecuritiesDomesticStockCredentials
+
+factory = KoreaInvestmentSecuritiesDomesticStockClientFactory()
+client = factory.create_client()
+
+
+@pytest.mark.asyncio
+async def test_set_credentials():
+    with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml", "r",
+              encoding="utf-8") as file:
+        accounts = yaml.safe_load(file)
+
+    account = accounts["Spot"]
+    public_key = account.get("public_key", "")
+    private_key = account.get("private_key", "")
+    if not public_key:
+        raise Exception("Empty value: public_key")
+    elif not private_key:
+        raise Exception("Empty value: private_key")
+
+    credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
+                                                                    private_key=accounts["Spot"]["private_key"])
+    await client.set_credentials_async(credentials=credentials)
 
 
 def worker_process(use_queue: multiprocessing.Queue):
@@ -31,7 +56,7 @@ def worker_process(use_queue: multiprocessing.Queue):
     asyncio.run(_run())
 
 
-with open(f"{pathlib.Path(__file__).parent.parent.parent.parent}/configurations/accounts.yaml") as file:
+with open(f"{pathlib.Path(__file__).parent.parent.parent}/configurations/accounts.yaml") as file:
     accounts = yaml.safe_load(file)
 credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accounts["Spot"]["public_key"],
                                                                 private_key=accounts["Spot"]["private_key"])
@@ -39,15 +64,14 @@ credentials = KoreaInvestmentSecuritiesDomesticStockCredentials(public_key=accou
 
 def worker_process_2(use_queue: multiprocessing.Queue):
     async def _run():
-        factory = KoreaInvestmentSecuritiesDomesticStockClientFactory()
-        client = factory.create_client(use_single_process_rate_limiter=False,
-                                       use_inter_process_rate_limiter=True)
-        client.private_rest_client.set_credentials(credentials=credentials)
         KoreaInvestmentSecuritiesDomesticStockInterProcessRateLimiter.set_minimum_interval(seconds=2)
 
         for _ in range(10):
-            result = await client.private_rest_client.get_account_v3_async()
+            code = KoreaInvestmentSecuritiesDomesticStockFidCondMrktDivCode.UN
+            iscd = "005930"
 
+            price_details = await client.rest_client.get_quotations_price_2_v1_async(fid_cond_mrkt_div_code=code,
+                                                                                     fid_input_iscd=iscd)
             now = time.monotonic()
             pid = os.getpid()
             # print(result)
