@@ -73,15 +73,15 @@ async def test_post_cash_v1_async():
     # ord_dvsn = "01" # 시장가
     # ord_unpr = "0"
 
-    result = await client.rest_client._post_trading_order_cash_v1_async(cano=cano,
-                                                                        acnt_prdt_cd=acnt_prdt_cd,
-                                                                        pdno=pdno,
-                                                                        ord_dvsn=ord_dvsn,
-                                                                        ord_qty=ord_qty,
-                                                                        is_closing=is_closing,
-                                                                        sll_type=sll_type,
-                                                                        ord_unpr=ord_unpr,
-                                                                        excg_id_dvsn_cd=excg_id_dvsn_cd)
+    result = await client.rest_client.post_trading_order_cash_v1_async(cano=cano,
+                                                                       acnt_prdt_cd=acnt_prdt_cd,
+                                                                       pdno=pdno,
+                                                                       ord_dvsn=ord_dvsn,
+                                                                       ord_qty=ord_qty,
+                                                                       is_closing=is_closing,
+                                                                       sll_type=sll_type,
+                                                                       ord_unpr=ord_unpr,
+                                                                       excg_id_dvsn_cd=excg_id_dvsn_cd)
 
     # {
     #     "rt_cd": "0",

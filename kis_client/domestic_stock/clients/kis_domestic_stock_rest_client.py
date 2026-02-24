@@ -122,17 +122,17 @@ class KoreaInvestmentSecuritiesDomesticStockRestClient:
         역할: 주식주문(현금)
     '''
 
-    async def _post_trading_order_cash_v1_async(self,
-                                                cano: str,
-                                                acnt_prdt_cd: str,
-                                                pdno: str,
-                                                ord_dvsn: str,
-                                                ord_qty: str,
-                                                is_closing: bool = False,
-                                                sll_type: Optional[str] = None,
-                                                ord_unpr: str = "0",
-                                                cndt_pric: Optional[str] = None,
-                                                excg_id_dvsn_cd: Optional[
+    async def post_trading_order_cash_v1_async(self,
+                                               cano: str,
+                                               acnt_prdt_cd: str,
+                                               pdno: str,
+                                               ord_dvsn: str,
+                                               ord_qty: str,
+                                               is_closing: bool = False,
+                                               sll_type: Optional[str] = None,
+                                               ord_unpr: str = "0",
+                                               cndt_pric: Optional[str] = None,
+                                               excg_id_dvsn_cd: Optional[
                                                    KoreaInvestmentSecuritiesDomesticStockExcgIdDvsnCd] = None):
 
         await self._ensure_access_token_async()
