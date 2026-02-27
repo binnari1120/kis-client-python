@@ -85,7 +85,7 @@ class KoreaInvestmentSecuritiesDomesticSpotApiCallExecutor:
                         return text
 
                     try:
-                        error_message = json.loads(await response.text())["error_description"]
+                        error_message = json.loads(await response.text())["msg1"]
                         raise ValueError(error_message)
                     except:
                         raise ValueError(text)
