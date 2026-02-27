@@ -3,7 +3,7 @@ import time
 
 
 class KoreaInvestmentSecuritiesDomesticStockSingleProcessRateLimiter:
-    MINIMUM_INTERVAL: float = 0.1
+    MINIMUM_INTERVAL: float = 0.5
 
     def __init__(self):
         self._lock = asyncio.Lock()
